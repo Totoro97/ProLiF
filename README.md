@@ -1,4 +1,4 @@
-# ProLiF
+# ProLiF [Arxiv 2022]
 We present a novel neural light field representation for efficient view synthesis.
 ![](./static/giants-1m.gif)
 
