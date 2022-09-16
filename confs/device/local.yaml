@@ -1,0 +1,2 @@
+base_dir: /home/ppwang/Projects/CPLFN
+base_data_dir: ${device.base_dir}/data

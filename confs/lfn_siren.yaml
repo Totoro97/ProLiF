@@ -1,0 +1,61 @@
+device:
+  base_dir: /home/ppwang/Projects/CPLFN
+  base_data_dir: ${device.base_dir}/data
+
+case_name: trex
+exp_name: test
+base_exp_dir: ${device.base_dir}/exp/${case_name}/${exp_name}
+recording: [./*.py, ./modules/*.py, ./modules/*/*.py]
+
+mode: train
+is_continue: false
+
+train:
+  learning_rate: 1e-4
+  learning_rate_alpha: 2.5e-2
+
+  mile_stones: [ 0, 1000000 ]
+
+  sub_div_inputs: [ true ]
+  sub_div_outputs: [ true ]
+  end_iter: 1000000
+
+  render_batch_size: 16384
+  vis_down_level: 1
+
+  save_freq: 200000
+  vis_freq: 5000
+  val_freq: 50000
+  video_freq: 100000
+  report_freq: 10000
+  tsboard_freq: 10
+
+PixelSupervisor:
+  color_weight: 1.
+  gray_weight: 0.
+  batch_size: 16384
+
+dataset:
+  data_dir: ${device.base_data_dir}/${case_name}/
+  target_width: 1008
+  factor: 4
+
+DirectRenderer:
+  siren_weight_conf:
+    d_subfields: 1
+    d_in: 4
+    d_out: 3
+    d_hidden: 512
+    n_layers: 9
+    skips: [4]
+    first_omega_0: 30.0
+    omega_0: 30.0
+    bias_mul: 1.0
+  field_conf:
+    weight_norm: true
+    skips: ${DirectRenderer.siren_weight_conf.skips}
+    d_hidden: ${DirectRenderer.siren_weight_conf.d_hidden}
+    act_conf:
+      first_omega_0: ${DirectRenderer.siren_weight_conf.first_omega_0}
+      omega_0: ${DirectRenderer.siren_weight_conf.omega_0}
+    activation: sine

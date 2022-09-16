@@ -1,0 +1,66 @@
+device:
+  base_dir: /home/ppwang/Projects/CPLFN
+  base_data_dir: ${device.base_dir}/data/light_change
+
+case_name: station
+exp_name: test_nerf_2
+base_exp_dir: ${device.base_dir}/exp/${case_name}/${exp_name}
+recording: [./*.py, ./modules/*.py, ./modules/*/*.py]
+
+mode: train
+is_continue: false
+
+train:
+  learning_rate: 5e-4
+  learning_rate_alpha: 5e-2
+
+  mile_stones: [ 0, 200000 ] # not used
+  sub_div_inputs: [ true ]   # not used
+  sub_div_outputs: [ true]   # not used
+  end_iter: 200000
+
+  render_batch_size: 1024
+  vis_down_level: 1
+
+  save_freq: 50000
+  vis_freq: 10000
+  val_freq: 100000
+  video_freq: 50000
+  report_freq: 10000
+  tsboard_freq: 10
+
+PatchSupervisor:
+  lp_weight: 0.025
+  mile_stones: [ 0, 167000, 200000 ]
+  batch_sizes: [ 1, 1 ]
+  lp_patch_h: [ 32, 32 ]
+  lp_patch_w: [ 32, 32 ]
+  image_down_levels: [ 2, 1 ]
+  color_keys: [ colors_coarse, colors ]
+
+LLFFDataset:
+  data_dir: ${device.base_data_dir}/${case_name}/
+  target_width: 750
+  factor: 8
+
+NeRFRenderer:
+  geo_mlp_conf:
+    dims: [ 63, 256, 256, 256, 256, 256, 256, 256, 256, 256 ]
+    skips: [ 4 ]
+    activation: relu
+    weight_norm: false
+    last_act: true
+  color_mlp_conf:
+    dims: [ 155, 128, 3 ]
+    skips: []
+    activation: relu
+    weight_norm: false
+    last_act: false
+  pts_embedder_conf:
+    n_freq: 10
+  dirs_embedder_conf:
+    n_freq: 4
+  geo_feat_dim: 128
+  app_feat_dim: 128
+  n_samples: 64
+  n_importance: 64

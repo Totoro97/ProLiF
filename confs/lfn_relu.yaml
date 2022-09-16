@@ -1,0 +1,48 @@
+device:
+  base_dir: /home/ppwang/Projects/CPLFN
+  base_data_dir: ${device.base_dir}/data
+
+case_name: trex
+exp_name: test
+base_exp_dir: ${device.base_dir}/exp/${case_name}/${exp_name}
+recording: [./*.py, ./modules/*.py, ./modules/*/*.py]
+
+mode: train
+is_continue: false
+
+train:
+  learning_rate: 1e-4
+  learning_rate_alpha: 2.5e-2
+
+  mile_stones: [ 0, 1000000 ]
+  sub_div_inputs: [ true ]
+  sub_div_outputs: [ true ]
+  end_iter: 1000000
+
+  render_batch_size: 16384
+  vis_down_level: 1
+
+  save_freq: 200000
+  vis_freq: 5000
+  val_freq: 50000
+  video_freq: 100000
+  report_freq: 10000
+  tsboard_freq: 10
+
+PixelSupervisor:
+  color_weight: 1.
+  gray_weight: 0.
+  batch_size: 16384
+
+dataset:
+  data_dir: ${device.base_data_dir}/${case_name}/
+  target_width: 1008
+  factor: 4
+
+DirectRenderer:
+  field_conf:
+    dims: [ 4, 512, 512, 512, 512, 512, 512, 512, 512, 3 ]
+    skips: [4]
+    activation: relu
+    weight_norm: true
+    last_act: false

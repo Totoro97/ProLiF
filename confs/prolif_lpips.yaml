@@ -1,0 +1,75 @@
+device:
+  base_dir: /home/ppwang/Projects/CPLFN
+  base_data_dir: ${device.base_dir}/data/light_change
+
+case_name: station
+exp_name: test
+base_exp_dir: ${device.base_dir}/exp/${case_name}/${exp_name}
+recording: [./*.py, ./modules/*.py, ./modules/*/*.py]
+
+mode: train
+is_continue: false
+
+train:
+  learning_rate: 1e-4
+  learning_rate_alpha: 2.5e-2
+
+  mile_stones: [ 0, 7500, 15000, 25000, 40000, 150000 ]
+  sub_div_inputs: [ true, true, true, true, true ]
+  sub_div_outputs: [ true, true, true, true, true ]
+  end_iter: 150000
+
+  render_batch_size: 16384
+  vis_down_level: 1
+
+  save_freq: 200000
+  vis_freq: 5000
+  val_freq: 50000
+  video_freq: 50000
+  report_freq: 10000
+  tsboard_freq: 10
+
+Regularizer:
+  batch_size: 8192
+  reg_weight: 1.
+  reg_window_begin: 7500
+  reg_window_end: 80000
+  color_weight: 1e-2
+  density_weight: 1e-3
+  r_alpha: 0.
+  sml1_beta: 0.5
+
+PatchSupervisor:
+  lp_weight: 0.025
+  mile_stones: [ 0, 125000, 150000 ]
+  lp_patch_h: [ -1, 300 ]
+  lp_patch_w: [ -1, 300 ]
+  batch_sizes: [ 1, 1 ]
+  image_down_levels: [ 2, 1 ]
+
+LLFFDataset:
+  data_dir: ${device.base_data_dir}/${case_name}/
+  target_width: 750
+  factor: 8
+
+ProLiFRenderer:
+  embedder_conf:
+    n_samples: ${ProLiFRenderer.weight_conf.d_subfields}
+  weight_conf:
+    d_subfields: 16
+    d_in: 2
+    d_out: 4
+    d_hidden: 32
+    n_layers: 9
+    skips: [4]
+    first_omega_0: 30.0
+    omega_0: 30.0
+    bias_mul: 1.0
+  field_conf:
+    weight_norm: true
+    skips: ${ProLiFRenderer.weight_conf.skips}
+    d_hidden: ${ProLiFRenderer.weight_conf.d_hidden}
+    act_conf:
+      first_omega_0: ${ProLiFRenderer.weight_conf.first_omega_0}
+      omega_0: ${ProLiFRenderer.weight_conf.omega_0}
+    activation: sine

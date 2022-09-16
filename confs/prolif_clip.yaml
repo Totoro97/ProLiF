@@ -1,0 +1,120 @@
+device:
+  base_dir: /home/ppwang/Projects/CPLFN
+  base_data_dir: ${device.base_dir}/data
+
+case_name: leaves
+exp_name: test
+base_exp_dir: ${device.base_dir}/exp/${case_name}/${exp_name}
+recording: [./*.py, ./modules/*.py, ./modules/*/*.py]
+
+mode: train
+is_continue: false
+
+train:
+  learning_rate: 1e-4
+  learning_rate_alpha: 2.5e-2
+
+  mile_stones: [ 0, 6000, 12500, 25000, 35000, 50000 ]
+
+  sub_div_inputs: [ true, true, true, true, true ]
+  sub_div_outputs: [ true, true, true, true, true ]
+  end_iter: 50000
+
+  render_batch_size: 16384
+  vis_down_level: 1
+
+  save_freq: 200000
+  vis_freq: 1000
+  val_freq: 50000
+  video_freq: 50000
+  report_freq: 10000
+  tsboard_freq: 10
+
+Regularizer:
+  batch_size: 8192
+  reg_weight: 1.
+  reg_window_begin: 6000
+  reg_window_end: 35000
+  color_weight: 1e-2
+  density_weight: 1e-3
+  r_alpha: 0.
+  sml1_beta: 0.5
+  n_apps: 2
+
+PixelSupervisor:
+  color_weight: 1.
+  gray_weight: 0.
+  batch_size: 16384
+  extra_query_conf:
+    app_idx: 1
+
+ClipSupervisor:
+  clip_weight: 5e-2
+  psize: 378
+  clip_psize: 224
+  text: snows on the leaves
+  extra_query_conf:
+    app_idx: 0
+    detach_geo: true
+    detach_app: true
+
+LLFFDataset:
+  data_dir: ${device.base_data_dir}/${case_name}/
+  target_width: 504
+  factor: 8
+
+ProLiFEmbRenderer:
+  embedder_conf:
+    n_samples: 16
+  geo_weights_conf:
+    d_subfields: 16
+    d_in: 2
+    d_out: 1
+    d_hidden: 32
+    n_layers: 7
+    skips: [ 3 ]
+    first_omega_0: 30.0
+    omega_0: 30.0
+    bias_mul: 1.0
+  geo_field_conf:
+    weight_norm: true
+    skips: ${ProLiFEmbRenderer.geo_weights_conf.skips}
+    d_hidden: ${ProLiFEmbRenderer.geo_weights_conf.d_hidden}
+    act_conf:
+      first_omega_0: ${ProLiFEmbRenderer.geo_weights_conf.first_omega_0}
+      omega_0: ${ProLiFEmbRenderer.geo_weights_conf.omega_0}
+    activation: sine
+  app_weights_conf:
+    d_subfields: 16
+    d_in: 2
+    d_out: 32
+    d_hidden: 32
+    n_layers: 5
+    skips: [ 3 ]
+    first_omega_0: 30.0
+    omega_0: 30.0
+    bias_mul: 1.0
+  app_field_conf:
+    weight_norm: true
+    skips: ${ProLiFEmbRenderer.app_weights_conf.skips}
+    d_hidden: ${ProLiFEmbRenderer.app_weights_conf.d_hidden}
+    act_conf:
+      first_omega_0: ${ProLiFEmbRenderer.app_weights_conf.first_omega_0}
+      omega_0: ${ProLiFEmbRenderer.app_weights_conf.omega_0}
+    activation: sine
+  rgb_weights_conf:
+    d_subfields: 16
+    d_in: 34
+    d_out: 3
+    d_hidden: 32
+    n_layers: 4
+    skips: []
+  rgb_field_conf:
+    weight_norm: true
+    skips: ${ProLiFEmbRenderer.rgb_weights_conf.skips}
+    d_hidden: ${ProLiFEmbRenderer.rgb_weights_conf.d_hidden}
+    act_conf:
+      beta: 100.0
+    activation: softplus
+  n_embeddings: 2
+  embedding_dim: 32
